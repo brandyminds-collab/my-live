@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seven Classic Ind. Ltd. - Material Balance Tracker</title>
+    <style>
+        :root {
+            --bg-color: #1a1d24;
+            --card-bg: #13161c;
+            --text-main: #ffffff;
+            --text-muted: #8a92a6;
+            --green: #2ecc71;
+            --red: #e74c3c;
+            --blue: #3498db;
+            --yellow: #f1c40f;
+            --border: #2c313d;
+            --admin-bg: #1c212c;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 25px 15px;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .admin-panel {
+            background-color: var(--admin-bg);
+            border: 2px dashed var(--blue);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            display: block; /* ডেটা এন্ট্রি করার সুবিধার্থে ডিফল্ট ওপেন রাখা হলো */
+        }
+
+        .admin-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--blue);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--blue);
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-blue { background-color: var(--blue); color: #fff; }
+        .btn-blue:hover { background-color: #2584c2; }
+        .btn-red { background-color: var(--red); color: #fff; padding: 5px 9px; font-size: 12px; border-radius: 4px; }
+        .btn-edit { background-color: #f39c12; color: #fff; padding: 5px 9px; font-size: 12px; margin-bottom: 4px; border-radius: 4px; }
+
+        .dashboard {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
+        }
+
+        .header { margin-bottom: 25px; }
+        .company-name { font-size: 35px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; font-weight: bold; }
+        .title { font-size: 26px; margin: 6px 0 0 0; font-weight: 600; }
+
+        .table-title-row, .material-row {
+            display: grid;
+            grid-template-columns: 190px minmax(180px, 1fr) 140px 110px 130px 100px;
+            gap: 15px;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .table-title-row, .material-row { grid-template-columns: 1fr; text-align: left; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+            .qty-col, .unit-price-col, .total-value-col { text-align: left !important; }
+        }
+
+        .table-title-row { margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+        .table-title-text { font-size: 16px; color: var(--text-muted); font-weight: bold; text-transform: uppercase; }
+        .materials-container { margin-bottom: 25px; min-height: 30px; }
+        .material-row { margin-bottom: 25px; }
+
+        .info-col { display: flex; flex-direction: column; }
+        .material-name { font-size: 20px; font-weight: bold; text-transform: uppercase; }
+        .material-name.highlight-blue { color: var(--blue); }
+        .material-val { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+        .progress-wrapper { background-color: #1a1e26; border-radius: 20px; height: 14px; width: 100%; overflow: hidden; }
+        .progress-bar { height: 100%; border-radius: 20px; transition: width 0.5s ease; }
+        .bg-green { background-color: var(--green); }
+        .bg-red { background-color: var(--red); }
+        .bg-yellow { background-color: var(--yellow); }
+
+        .qty-col { text-align: right; font-weight: bold; font-size: 20px; line-height: 1.4; }
+        .good-stock-text { color: var(--green); }
+        .low-stock-text { color: var(--red); }
+        .usd-live-val { display: block; font-size: 11px; color: var(--text-muted); font-weight: normal; }
+
+        .unit-price-col { text-align: right; font-size: 20px; font-weight: bold; }
+        .price-label { display: block; color: var(--text-muted); font-size: 10px; font-weight: normal; margin-top: 3px; }
+
+        .total-value-col { text-align: right; color: var(--green); font-size: 20px; font-weight: bold; }
+        .action-col { text-align: center; }
+
+        .footer-metrics { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--border); padding-top: 25px; text-align: center; }
+        @media (max-width: 600px) { .footer-metrics { grid-template-columns: 1fr; gap: 15px; } }
+        .metric-box { border-right: 1px solid var(--border); }
+        .metric-box:last-child { border-right: none; }
+        .metric-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+        .metric-value { font-size: 24px; font-weight: bold; }
+        .text-green { color: var(--green); }
+        .text-red { color: var(--red); }
+        
+        .loading-status { font-size: 12px; color: var(--yellow); font-weight: normal; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- FORM PANEL -->
+    <div class="admin-panel">
+        <div class="admin-title">
+            <span>Material Management</span>
+            <span id="syncStatus" class="loading-status">Syncing cloud...</span>
+        </div>
+        <form id="materialForm">
+            <input type="hidden" id="editIndex" value="">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Material Name</label>
+                    <input type="text" id="matName" placeholder="e.g. Duplex" required>
+                </div>
+                <div class="form-group">
+                    <label>Total Kg</label>
+                    <input type="number" id="totalKg" placeholder="e.g. 10000" required>
+                </div>
+                <div class="form-group">
+                    <label>Remaining Balance (Kg)</label>
+                    <input type="number" id="remainKg" placeholder="e.g. 6000" required>
+                </div>
+                <div class="form-group">
+                    <label>Unit</label>
+                    <input type="text" id="unitType" value="Kg" required>
+                </div>
+                <div class="form-group">
+                    <label>Unit Price ($)</label>
+                    <input type="number" step="0.01" id="unitPrice" placeholder="e.g. 0.80" required>
+                </div>
+                <div class="form-group">
+                    <label>Highlight Blue?</label>
+                    <select id="highlightBlue">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-blue" id="saveBtn">Save Material</button>
+        </form>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="dashboard">
+        <div class="header">
+            <div class="company-name">Seven Classic Ind. Ltd.</div>
+            <div class="title">Live Raw Material Balance Tracker</div>
+        </div>
+
+        <div class="table-title-row">
+            <div class="table-title-text">Raw Materials</div>
+            <div class="table-title-text">Balance Level</div>
+            <div class="table-title-text" style="text-align: right;">Remaining Balance</div>
+            <div class="table-title-text" style="text-align: right;">Unit Price</div>
+            <div class="table-title-text" style="text-align: right;">Total Value</div>
+            <div class="table-title-text" style="text-align: center;">Action</div>
+        </div>
+
+        <div id="materialsContainer" class="materials-container">
+            <!-- Dynamic rows will be inserted here -->
+        </div>
+
+        <div class="footer-metrics">
+            <div class="metric-box">
+                <div class="metric-label">Remaining Raw Material Volume</div>
+                <div class="metric-value" id="totalVolume">0 Kg</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-label">Total Value</div>
+                <div class="metric-value text-green" id="grandTotalValue">$0.00</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-label">Low Balance Warning</div>
+                <div class="metric-value text-red" id="lowWarningCount">0</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
